@@ -14,10 +14,12 @@ library(tidyverse)
 ```
 
 
-# Code for Preliminary Data
+# Code for Preliminary Data from paige
 
 ```{r}
-tube_growth = read_csv(here("./data/tube-growth.csv"))
+library(readr)
+tube_growth <- read_csv("tube-growth.csv")
+View(tube_growth)
 knitr::kable(tube_growth, caption = "Tube growth rates of all marked worms in various treatments.")
 
 tank_conditions = read_csv(here("./data/tank-conditions.csv"))
@@ -26,6 +28,7 @@ knitr::kable(tank_conditions, caption = "Tank conditions of all treatment tanks 
 mortality = read_csv(here("./data/mortality.csv"))
 knitr::kable(mortality, caption = "Mortality of worms in all treatments.")
 ```
+
 
 ## Make scatterplot for growth of each worm
 ```{r}
@@ -42,7 +45,7 @@ ggplot(data = clean_tube_growth, aes(x = timestep, y = growth, colour = worm_id)
 
 ## Make a boxplot for final growth
 ```{r}
-ggplot(tube_growth, aes(x = treatment, y = total_growth)) +
+ggplot(tube_growth, aes(x = treatment, y = total_growth_DS)) +
   geom_boxplot(alpha = 0.8)
 
 ggplot(snailed_it, aes(x = Exposure, y = Percent_survival, fill = Species)) + 
@@ -64,15 +67,35 @@ ggplot(snailed_it, aes(x = Exposure, y = Percent_survival, fill = Species)) +
 
 ### Check for normality
 ```{r}
-growth_total <- tube_growth %>%
-  select(total_growth)
 
-shapiro.test(growth_total)
+# distribution of growth between treatments 
+growth_sal <- tube_growth %>%
+  select(treatment,total_growth_DS) %>%
+  filter(treatment == 'low_salinity')
+
+growth_heat <- tube_growth %>%
+  select(treatment,total_growth_DS) %>%
+  filter(treatment == 'high_temp')
+
+growth_cont <- tube_growth %>%
+  select(treatment,total_growth_DS) %>%
+  filter(treatment == 'control')
+
+
+shapiro.test(growth_sal$total_growth_DS) # pvalue = 0.5244
+shapiro.test(growth_heat$total_growth_DS) # pvalue = 0.1149
+shapiro.test(growth_cont$total_growth_DS) # pvalue = 0.001047
+
+# OR distribution of growth amoung all our samples
+
+shapiro.test(tube_growth$total_growth_DS) # p value = 7.081e-05
+
+
 ```
 
 ### histogram and qqplot
 ```{r}
-hist(growth_total)
+hist(growth_total_DS)
 
 qqnorm(growth_total)
 qqline(growth_total)
