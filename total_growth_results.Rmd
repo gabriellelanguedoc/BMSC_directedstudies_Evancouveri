@@ -1,0 +1,106 @@
+---
+title: "total_tube_growth_results"
+author: "Gabrielle Languedoc"
+date: "25/11/2021"
+output: pdf_document
+---
+
+#### Load required libraries and data set
+
+```{r}
+library(mgcv)
+library(fitdistrplus)
+library(goft)
+library(gamlss)
+library(here)
+library(patchwork)
+library(LambertW)
+library(viridis)
+library(dplyr) 
+library(tidyverse)
+
+library(readr)
+tube_growth <- read_csv("tube-growth.csv")
+
+
+```
+
+#### Cleaning Data Sheet
+
+```{r}
+clean_growth <- tube_growth %>%
+select(total_growth, treatment) 
+  
+```
+
+### Visualizing with a boxplot
+```{r}
+
+my_cols = c("low_salinity" = "lightskyblue1", "high_temp" = "indianred", "control" = "thistle")
+ggplot(clean_growth, aes(x = treatment, y = total_growth, fill = treatment)) +
+  geom_boxplot(alpha = 0.8) + 
+  theme_classic() +
+  ylab("Total Tube Growth (mm)") +
+  xlab("Treatment") +
+  scale_fill_manual(values = my_cols) +
+  scale_colour_manual(values = my_cols) +
+  theme(legend.position="none") +
+  scale_x_discrete(labels = c('Control','Temperature','Salinity'))
+
+ggsave(plot = last_plot(), filename = "plot.pdf")
+
+```
+### Finding Mean Values for Each Treatment
+
+```{r}
+mean_growth <- clean_growth %>%
+group_by(treatment) %>%
+summarise_at(vars(total_growth), list(mean = mean))
+```
+
+
+### Checking Distributions
+
+```{r}
+shapiro.test(clean_growth$total_growth) # P value = 2.292e-06
+descdist(clean_growth$total_growth)
+
+# trying log transform
+
+clean_log <- clean_growth %>%
+  mutate(loggrowth = log2(total_growth))
+shapiro.test(clean_log$loggrowth) # P value 0.006626
+
+# trying to square root transform
+
+clean_root <- clean_growth %>%
+  mutate(rootgrowth = sqrt(total_growth))
+shapiro.test(clean_root$rootgrowth) # P value = 0.008449 
+
+hist(clean_root$rootgrowth)
+
+fitDist(rootgrowth, data = clean_root, type = "realAll", try.gamlss = T)
+fitDist(total_growth, data = clean_growth, type = "realAll", try.gamlss = T)
+
+### Both show the best distribution is Skew Exponential Power type 2
+
+```
+
+#### Modelling
+```{r}
+library(performance)
+# Running a Gamlss Model
+
+model_growth <- tube_growth %>%
+  dplyr::select(c(treatment,total_growth, amt_cut_mm, worm_id))
+
+gamlss.mod <- gamlss(total_growth ~ treatment + amt_cut_mm + random(as.factor(worm_id)),
+               family = SEP2(),
+               data = model_growth,
+               control = gamlss.control(n.cyc =100))
+
+summary(gamlss.mod)
+
+check_model(gamlss.mod)
+```
+
