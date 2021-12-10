@@ -80,27 +80,36 @@ shapiro.test(clean_root$rootgrowth) # P value = 0.008449
 hist(clean_root$rootgrowth)
 
 fitDist(rootgrowth, data = clean_root, type = "realAll", try.gamlss = T)
+
 fitDist(total_growth, data = clean_growth, type = "realAll", try.gamlss = T)
 
 ### Both show the best distribution is Skew Exponential Power type 2
 
+mSEP2 <- histDist(clean_growth$total_growth, "SEP2", density = T, main = "Skew exp type 2")
 ```
 
 #### Modelling
 ```{r}
 library(performance)
+
 # Running a Gamlss Model
 
 model_growth <- tube_growth %>%
-  dplyr::select(c(treatment,total_growth, amt_cut_mm, worm_id))
+  dplyr::select(c(treatment,total_growth, string_loss, mortality, amt_cut_mm, worm_id)) %>%
+  mutate(worm_id = as.factor(worm_id))
 
-gamlss.mod <- gamlss(total_growth ~ treatment + amt_cut_mm + random(as.factor(worm_id)),
+gamlss.mod <- gamlss(total_growth ~ treatment + amt_cut_mm + mortality,
                family = SEP2(),
                data = model_growth,
-               control = gamlss.control(n.cyc =100))
+               control = gamlss.control(n.cyc = 25))
+
+# ran after 25 iterations when we removed worm_id as a random effect as per Dans advice
+
 
 summary(gamlss.mod)
+plot(gamlss.mod)
+residuals(gamlss.mod)
 
-check_model(gamlss.mod)
+
 ```
 
