@@ -85,7 +85,7 @@ fitDist(total_growth, data = clean_growth, type = "realAll", try.gamlss = T)
 
 ### Both show the best distribution is Skew Exponential Power type 2
 
-mSEP2 <- histDist(clean_growth$total_growth, "SEP1", density = T, main = "Skew exp type 2")
+mSEP2 <- histDist(clean_growth$total_growth, "SEP2", density = T, main = "Skew exp type 2")
 ```
 
 #### Modelling
