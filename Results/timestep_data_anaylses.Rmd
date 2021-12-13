@@ -148,6 +148,29 @@ pwc
 
 ```
 
+## Finding the Mean and Standard Error of Tube Growth in each Timestep
+```{r}
+# finding the mean and standard error of tube growth in timestep 1
+summary(tube_growth$growth_1)
+se(tube_growth$growth_1)
+
+# finding the mean and standard error of tube growth in timestep 2
+summary(tube_growth$growth_2)
+se(tube_growth$growth_2)
+
+# finding the mean and standard error of tube growth in timestep 3
+summary(tube_growth$growth_3)
+se(tube_growth$growth_3)
+
+# finding the mean and standard error of tube growth in timestep 4
+summary(tube_growth$growth_4)
+se(tube_growth$growth_4)
+
+# finding the mean and standard error of tube growth in timestep 5
+summary(tube_growth$growth_5)
+se(tube_growth$growth_5)
+```
+
 # Plotting the Timestep Data
 ```{r}
 # choosing colours for one.way plot
