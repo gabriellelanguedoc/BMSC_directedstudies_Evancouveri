@@ -1,0 +1,200 @@
+---
+title: "Timestep Data Analyses"
+author: "Paige Amos"
+date: "12/10/2021"
+output: pdf_document
+---
+
+#### Load required libraries
+```{r}
+library(here)
+library(reshape2)
+library(FSA) 
+library(fGarch)
+library(LambertW)
+library(patchwork)
+library(DHARMa)
+library(mgcv)
+library(fitdistrplus)
+library(goft)
+library(gamlss)
+library(rstatix)
+library(tidyverse)
+```
+
+# Manipulate Raw Tube Growth Data for Plotting and Stats
+
+## Load raw data
+```{r}
+tube_growth = read_csv(here("./data/tube-growth.csv"))
+knitr::kable(tube_growth, caption = "Tube growth rates of all marked worms in various treatments.")
+```
+
+## Wraggle data
+```{r}
+# Clean tube_growth data for plotting and statistical tests
+clean_tube_growth <- tube_growth %>%
+  mutate(zone = as.factor(zone)) %>%
+  unite("replicate", tank:zone, remove = TRUE) %>%
+  dplyr::select(replicate, worm_id, amt_cut_mm, treatment, growth_1, growth_2, growth_3, growth_4, growth_5) %>%
+  pivot_longer(!c(replicate, worm_id, amt_cut_mm, treatment),
+               names_to = "timestep",
+               values_to = "growth") %>%
+  mutate(treatment = as.factor(treatment),
+         worm_id = as.factor(worm_id),
+         timestep = as.factor(timestep),
+         growth = as.double(growth))
+
+```
+
+# Statistical Analyses
+
+## Checking Assumptions of a One-way Repeated Measures ANOVA
+```{r}
+# visualize data
+ggplot(timestep_data, aes(x= timestep, y = growth)) +
+  geom_boxplot()
+
+# check for normality of the growth at each timestep using Shapiro Wilks test
+timestep_data %>%
+  group_by(timestep) %>%
+  shapiro_test(growth)
+
+# investigate distribution of the growth at each timestep using qqplots since shapiro-wilk test found growth at all timesteps to be not normal
+
+# timestep 1
+growth_1 <- timestep_data %>%
+  dplyr::filter(timestep == "growth_1")
+
+qqnorm(growth_1$growth)
+qqline(growth_1$growth)
+
+# timestep 2
+growth_2 <- timestep_data %>%
+  dplyr::filter(timestep == "growth_2")
+
+qqnorm(growth_2$growth)
+qqline(growth_2$growth)
+
+# timestep 3
+growth_3 <- timestep_data %>%
+  dplyr::filter(timestep == "growth_3")
+
+qqnorm(growth_3$growth)
+qqline(growth_3$growth)
+
+# timestep 4
+growth_4 <- timestep_data %>%
+  dplyr::filter(timestep == "growth_4")
+
+qqnorm(growth_4$growth)
+qqline(growth_4$growth)
+
+# timestep 5
+growth_5 <- timestep_data %>%
+  dplyr::filter(timestep == "growth_5")
+
+qqnorm(growth_5$growth)
+qqline(growth_5$growth)
+
+# Since sample size is N=90 overall and n= 30 for each treatment, sample size is large enough to ignore the assumption of normality for the ANOVA
+
+# Checking for extreme outliers
+timestep_data %>%
+  group_by(timestep) %>%
+  identify_outliers(growth)
+
+# Since two extreme outliers were found (B_2_6, C_2_1) remove extreme outliers so that results of ANOVA with and without extreme outliers can be compared to determine if extreme outliers significantly affect results
+no_exouts <- timestep_data %>%
+  dplyr::filter(growth < 7.90)
+
+#check that extreme outliers were successfully removed
+no_exouts %>%
+  group_by(timestep) %>%
+  identify_outliers(growth)
+
+#assumption of sphericity automatically checked by ANOVA test
+
+```
+
+## One-way Repeated Measures Analysis of Variance (ANOVA)
+```{r}
+# run one-way repeated measures ANOVA and obtain ANOVA table
+tube.aov <-anova_test(data = timestep_data, dv = growth,
+                       wid = worm_id,
+                       within = timestep)
+get_anova_table(tube.aov)
+
+# run one-way repeated measures ANOVA for data with extreme outliers removed
+
+noexouts.aov <- anova_test(data = no_exouts, dv = growth,
+                       wid = worm_id,
+                       within = timestep)
+get_anova_table(noexouts.aov)
+
+# results of ANOVA do not change significantly (both are statistically significant) when extreme outliers are removed so results of ANOVA including extreme outliers will be reported
+```
+
+## Pairwise Comparison
+```{r}
+# performing pairwise comparison between timesteps
+pwc <- timestep_data %>%
+  pairwise_t_test(growth ~ timestep, paired = TRUE,
+                  p.adjust.method = "bonferroni")
+
+pwc <- pwc %>% add_xy_position(x = "timestep")
+
+pwc
+
+```
+
+# Plotting the Timestep Data
+```{r}
+# choosing colours for one.way plot
+
+one.way.cols = c("growth_1" = "gray25", "growth_2" = "gray40", "growth_3" = "gray55", "growth_4" = "gray70", "growth_5" = "gray85")
+
+# Making a plot of the mean growth of all treatments over all timesteps
+
+one.way = 
+  ggplot(clean_tube_growth, aes(x = timestep, y = growth)) +
+  geom_boxplot(aes(fill = timestep)) +
+  theme_classic() +
+  theme(legend.position = "none") +
+  xlab("Timestep") +
+  ylab("Tube Growth (mm)") +
+  scale_x_discrete(labels=c("growth_1" = "1", "growth_2" = "2","growth_3" = "3", "growth_4" = "4", "growth_5" = "5")) +
+  scale_color_manual(values = one.way.cols) +
+  scale_fill_manual(values = one.way.cols)
+
+one.way
+
+# saving one.way plot
+
+ggsave(plot = one.way, filename = "one-way.jpg")
+
+# choosing colours for treat.growth plot
+
+treat.growth.cols = c("control" = "gray30", "high_temp" = "gray50", "low_salinity" = "gray70")
+
+# Making a plot of the mean tube growth per treatment over all timesteps
+ 
+treat.growth =
+  ggplot(clean_tube_growth, aes(x = timestep, y = growth, fill = treatment)) +
+    geom_boxplot() +
+    scale_fill_discrete(name = "Treatment", labels = c("Control", "Temperature", "Salinity")) +
+    theme_classic() +
+    xlab("Timestep") +
+    ylab("Tube Growth (mm)") +
+    scale_x_discrete(labels=c("growth_1" = "1", "growth_2" = "2","growth_3" = "3", "growth_4" = "4", "growth_5" = "5")) +
+    scale_color_manual(values = treat.growth.cols) +
+    scale_fill_manual(values = treat.growth.cols)
+
+treat.growth
+
+# saving treat.growth plot
+
+ggsave(plot = treat.growth, filename = "treat.growth.jpg")
+
+```
+
