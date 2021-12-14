@@ -16,6 +16,7 @@ library(here)
 library(patchwork)
 library(LambertW)
 library(viridis)
+library(performance)
 library(dplyr) 
 library(tidyverse)
 
@@ -28,14 +29,22 @@ tube_growth <- read_csv("tube-growth.csv")
 #### Cleaning Data Sheet
 
 ```{r}
+
+# Manipulated data for intial visualization
 clean_growth <- tube_growth %>%
 select(total_growth, treatment) 
+
+# Manipulated data for GAMLSS Model (Important note; Could not get the model to run using worm_id and string_loss as factors. This is likely because of the small sample size (N=90) creating to much noise)
+model_growth <- tube_growth %>%
+  dplyr::select(c(treatment,total_growth, string_loss, mortality, amt_cut_mm, worm_id)) %>%
+  mutate(worm_id = as.factor(worm_id))
+
   
 ```
 
-### Visualizing with a boxplot
+### Visualizing Total Tube Growth Data with a boxplot
 ```{r}
-
+#colour version
 my_cols = c("low_salinity" = "lightskyblue1", "high_temp" = "indianred", "control" = "thistle")
 ggplot(clean_growth, aes(x = treatment, y = total_growth, fill = treatment)) +
   geom_boxplot(alpha = 0.8) + 
@@ -47,7 +56,21 @@ ggplot(clean_growth, aes(x = treatment, y = total_growth, fill = treatment)) +
   theme(legend.position="none") +
   scale_x_discrete(labels = c('Control','Temperature','Salinity'))
 
-ggsave(plot = last_plot(), filename = "plot.pdf")
+ggsave(plot = last_plot(), filename = "total_tube_growth_boxplot_colourized.pdf")
+
+#grey scale version
+my_cols_grey = c("low_salinity" = "grey70", "high_temp" = "grey50", "control" = "grey30")
+ggplot(clean_growth, aes(x = treatment, y = total_growth, fill = treatment)) +
+  geom_boxplot(alpha = 0.8) + 
+  theme_classic() +
+  ylab("Total Tube Growth (mm)") +
+  xlab("Treatment") +
+  scale_fill_manual(values = my_cols_grey) +
+  scale_colour_manual(values = my_cols_grey) +
+  theme(legend.position="none") +
+  scale_x_discrete(labels = c('Control','Temperature','Salinity'))
+
+ggsave(plot = last_plot(), filename = "total_tube_growth_boxplot_greyscale.pdf")
 
 ```
 ### Finding Mean Values for Each Treatment
@@ -59,9 +82,12 @@ summarise_at(vars(total_growth), list(mean = mean))
 ```
 
 
-### Checking Distributions
+### Checking Distributions For Normality
 
 ```{r}
+
+# Original 
+
 shapiro.test(clean_growth$total_growth) # P value = 2.292e-06
 descdist(clean_growth$total_growth)
 
@@ -77,6 +103,8 @@ clean_root <- clean_growth %>%
   mutate(rootgrowth = sqrt(total_growth))
 shapiro.test(clean_root$rootgrowth) # P value = 0.008449 
 
+# All attempts show our data varies significantly from normal, now trying fist dist function to find the best distribution.
+
 hist(clean_root$rootgrowth)
 
 fitDist(rootgrowth, data = clean_root, type = "realAll", try.gamlss = T)
@@ -90,13 +118,11 @@ mSEP2 <- histDist(clean_growth$total_growth, "SEP2", density = T, main = "Skew e
 
 #### Modelling
 ```{r}
-library(performance)
+
 
 # Running a Gamlss Model
 
-model_growth <- tube_growth %>%
-  dplyr::select(c(treatment,total_growth, string_loss, mortality, amt_cut_mm, worm_id)) %>%
-  mutate(worm_id = as.factor(worm_id))
+
 
 gamlss.mod <- gamlss(total_growth ~ treatment + amt_cut_mm + mortality,
                family = SEP2(),
@@ -105,6 +131,7 @@ gamlss.mod <- gamlss(total_growth ~ treatment + amt_cut_mm + mortality,
 
 # ran after 25 iterations when we removed worm_id as a random effect as per Dans advice
 
+# Checking model 
 
 summary(gamlss.mod)
 plot(gamlss.mod)
