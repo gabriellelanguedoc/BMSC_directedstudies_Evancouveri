@@ -18,7 +18,7 @@ This repository was created for our directed studies and applied data analysis c
 ## Repository Outline
 
 ### Data:
-- ***master_data_sheet***: an excel file with our all our raw data including metadata, tube growth data and tank conditions data.
+- ***AmosDesjardinLanguedoc_DSASA2021***: a master excel file with our all our raw data including metadata, tube growth data and tank conditions data.
 - ***tube-growth.csv***: raw data used for tube_growth_results and timestep_growth_results rmd files.
 
 ### Results:
