@@ -1,0 +1,33 @@
+,Researchers Involved,,,,Geographic Information,
+Name,Phone,Email,,Collection Site,"(48.8333 N, -125.1369 W) Bamfield BC Canada",
+Paige Amos,269-885-104,paigeamos2@gmail.com,,Collection Date,Novemeber 6 2021,
+Gena Desjardin,778-232-2139,gena.desjardin.gd@gmail.com,,Labratory Location, Bamfield Marine Science Centre,
+Gabrielle Languedoc,604-849-2308,languedocgabrielle@gmail.com,,Collection Organism ,Northern Feather Duster Worm (Eudistlyia Vancouveri),
+,,,,,,
+,Study Information,Sheets Table of Contents,,,,
+Project Topic,Climate Change and the Foundational Species Eudistlyia Vancouveri,tube_growth,Data of total tube growth and tube growth over each time step,,,
+Course Title:,Directed Studies and Applied Data Analysis at Bamfield Marine Science Centre Fall Program 2021,tank_conditions,Documentation of temperature and salinity conditions of each tank over the course of the experiment,,,
+Supervisors: ,"Dr. Sara Wuitchik, Dan Wuitchik, Jenna Fleet",,,,,
+Brief Methods Description:,The growth of E. Vancouveri tubes were measured every 48 hours for eleven days after exposure to repeated acute 12 hour treatments of decreased salinity (30 ppt) and increased temperature (20 degress celsius). Total growth was measured as well as growth over each time step. ,,,,,
+,,,,,,
+Terminology For tube_growth Sheet,,,,,,Terminology for tank_conditions Sheet
+tank = Aquarium,,,,,,Date = date of measurement
+zone = Location in aquarium,,,,,,Time = time of measurement
+"worm_id = indivdual identification of each worm based on their tank, zone, and colour.",,,,,,"Tank = zone (A,B,C) within aquarium (1,2,3)"
+"treatment = low_salinty (12°C, 30ppt),  high_temp (20°C, 35ppt), control (12°C, 35ppt)",,,,,,"Treatment =  low_salinty (12°C, 30ppt),  high_temp (20°C, 35ppt), control (12°C, 35ppt)"
+worm_colour = colour of string sewn onto worm,,,,,,Temperature_C = Temperature in degrees celsius of tank
+amt_cut_mm = length of tube cut off intitally in mm,,,,,,Salinity_ppt = salintiy of tank in ppt
+string_end_mm = distance from sewn string to end of the tube after being cut in mm (08/11/2021),,,,,,Notes = qualitative information about conditions of tank
+length_1 = length (mm) of tube from string to end on 10/11/2021,,,,,,
+length_2 = length(mm) of tube from string to end on 12/11/2021,,,,,,
+length_3 = length(mm) of tube from string to end on 14/11/2021,,,,,,
+length_3.5 = length (mm)of tube from string to end on 16/11/2021,,,,,,
+length_4 = length (mm) of tube from string to end on 17/11/2021,,,,,,
+length_5 = length (mm) of tube from string to end on 19/11/2021,,,,,,
+growth_1 =  growth (mm) of timestep 1(from 08/11/2021 to 10/11/2021) calculated by (length_1) - (string_end_mm ),,,,,,
+growth_2 =  growth (mm) of timestep 2 (from 10/11/2021 to 12/11/2021) calculated by (length_2) - (length_1),,,,,,
+growth_3 =  growth (mm) of timestep 3 (from 12/11/2021 to 14/11/2021)  calculated by (length_3) - (length_2)                                                                                                                                                                                                       ,,,,,,
+growth_4 =  growth (mm) of timestep 4 (from 14/11/2021 to 16/11/2021) calculated by (length_4) - (length_3.5)                                                                                                                                                                                                    ,,,,,,
+growth_5 =  growth (mm) of timestep 5 (from 16/11/2021 to 18/11/2021) calculated by (length_5) - (length_4)                                                                                                                                                                                                    ,,,,,,
+total_growth = growth(mm) of tube after eleven day experiement 10/11/2021 to 19/11/2021 (length_5) - (string_end_mm),,,,,,
+mortality = (0 =alive) (1=dead),,,,,,
