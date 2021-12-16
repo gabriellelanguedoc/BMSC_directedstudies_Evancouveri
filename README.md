@@ -27,6 +27,7 @@ This repository was created for our directed studies and applied data analysis c
 
 ### Paper:
 PDF version of our paper finalized Decemeber 15th 2021. 
+All figures and tables included as seperate files in their respective order from the paper
 
 
 
