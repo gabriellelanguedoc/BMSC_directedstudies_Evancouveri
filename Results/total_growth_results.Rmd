@@ -7,7 +7,8 @@ output: pdf_document
 
 #### Load required libraries and data set
 
-```{r}
+```{r warning = FALSE, message = FALSE}
+
 library(mgcv)
 library(fitdistrplus)
 library(goft)
@@ -22,6 +23,7 @@ library(dplyr)
 library(tidyverse)
 library(readr)
 
+# import data set
 tube_growth <- read_csv("tube-growth.csv")
 
 
@@ -29,7 +31,7 @@ tube_growth <- read_csv("tube-growth.csv")
 
 #### Cleaning Data Sheet
 
-```{r}
+```{r warning = FALSE, message = FALSE}
 
 # Manipulated data for intial visualization
 clean_growth <- tube_growth %>%
@@ -44,7 +46,7 @@ model_growth <- tube_growth %>%
 ```
 
 ### Visualizing Total Tube Growth Data with a boxplot
-```{r}
+```{r warning = FALSE, message = FALSE}
 #colour version
 my_cols = c("low_salinity" = "#6300A7FF", "high_temp" = "#C03A83FF", "control" = "#F58C46FF")
 
@@ -77,7 +79,7 @@ ggsave(plot = last_plot(), filename = "total_tube_growth_boxplot_greyscale.pdf")
 ```
 ### Finding Mean Values for Each Treatment
 
-```{r}
+```{r warning = FALSE, message = FALSE}
 mean_growth <- clean_growth %>%
 group_by(treatment) %>%
 summarise_at(vars(total_growth), list(mean = mean))
@@ -86,7 +88,7 @@ summarise_at(vars(total_growth), list(mean = mean))
 
 ### Checking Distributions For Normality
 
-```{r}
+```{r warning = FALSE, message = FALSE}
 
 # Original 
 
@@ -119,12 +121,10 @@ mSEP2 <- histDist(clean_growth$total_growth, "SEP2", density = T, main = "Skew e
 ```
 
 #### Modelling
-```{r}
+```{r warning = FALSE, message = FALSE}
 
 
 # Running a Gamlss Model
-
-
 
 gamlss.mod <- gamlss(total_growth ~ treatment + amt_cut_mm + mortality,
                family = SEP2(),
