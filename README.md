@@ -12,3 +12,8 @@ Welcome! This repository was created for our Directed Studies and Applied Data A
 - Dan Wuitchik
 - Dr. Sara Wuitchik
 - Jenna Fleet
+
+### Respository Outline
+- Data
+- Results
+- Paper
