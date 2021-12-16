@@ -15,12 +15,13 @@ library(gamlss)
 library(here)
 library(patchwork)
 library(LambertW)
+library(scales)
 library(viridis)
 library(performance)
 library(dplyr) 
 library(tidyverse)
-
 library(readr)
+
 tube_growth <- read_csv("tube-growth.csv")
 
 
@@ -36,7 +37,7 @@ select(total_growth, treatment)
 
 # Manipulated data for GAMLSS Model (Important note; Could not get the model to run using worm_id and string_loss as factors. This is likely because of the small sample size (N=90) creating to much noise)
 model_growth <- tube_growth %>%
-  dplyr::select(c(treatment,total_growth, string_loss, mortality, amt_cut_mm, worm_id)) %>%
+  dplyr::select(c(treatment,total_growth,mortality, amt_cut_mm, worm_id)) %>%
   mutate(worm_id = as.factor(worm_id))
 
   
@@ -45,7 +46,8 @@ model_growth <- tube_growth %>%
 ### Visualizing Total Tube Growth Data with a boxplot
 ```{r}
 #colour version
-my_cols = c("low_salinity" = "lightskyblue1", "high_temp" = "indianred", "control" = "thistle")
+my_cols = c("low_salinity" = "#6300A7FF", "high_temp" = "#C03A83FF", "control" = "#F58C46FF")
+
 ggplot(clean_growth, aes(x = treatment, y = total_growth, fill = treatment)) +
   geom_boxplot(alpha = 0.8) + 
   theme_classic() +
